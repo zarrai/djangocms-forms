@@ -343,6 +343,13 @@ class FormBuilder(forms.Form):
         mail_from = self.form_definition.email_from or None
         mail_subject = self.form_definition.email_subject or \
             'Form Submission - %s' % self.form_definition.name
+        # Recipient email
+        if request.method == 'POST':
+            Recipient_email = re.compile('\s*[,;]+\s*').split(request.POST['e_mail'])
+        Recipient_email_subject = self.form_definition.Recipient_email_subject or \
+            'Form Submission - %s' % self.form_definition.name
+        Recipient_email_Body = self.form_definition.Recipient_email_Body
+
         context = {
             'form': self.form_definition,
             'referrer': referrer,
@@ -350,6 +357,10 @@ class FormBuilder(forms.Form):
             'form_data': form_data,
             'request': request,
             'recipients': mail_to,
+            #
+            'Recipient_email': Recipient_email,
+            'Recipient_subject': Recipient_email_subject,
+            'Recipient_email_Body':  Recipient_email_Body,
         }
 
         message = render_to_string('djangocms_forms/email_template/email.txt', context)
@@ -357,6 +368,12 @@ class FormBuilder(forms.Form):
 
         email = EmailMultiAlternatives(mail_subject, message, mail_from, mail_to)
         email.attach_alternative(message_html, 'text/html')
+        #
+        Recipient_message = render_to_string('djangocms_forms/email_template/Recipient_email.txt', context)
+        Recipient_message_html = render_to_string('djangocms_forms/email_template/Recipient_email.html', context)
+
+        Recipient_email = EmailMultiAlternatives(Recipient_email_subject, Recipient_message, mail_from, Recipient_email)
+        Recipient_email.attach_alternative(Recipient_message_html, 'text/html')
 
         if self.form_definition.email_uploaded_files:
             for field, filedata in self.files.items():
@@ -366,6 +383,7 @@ class FormBuilder(forms.Form):
                 email.attach(filedata.name, content, filedata.content_type)
 
         email.send(fail_silently=False)
+        Recipient_email.send(fail_silently=False)
 
 
 class SubmissionExportForm(forms.Form):

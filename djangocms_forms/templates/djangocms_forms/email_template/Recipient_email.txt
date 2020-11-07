@@ -1,0 +1,8 @@
+{% load i18n djangocms_forms_tags %}
+
+{% trans 'Form:' %} {{ form.name }}
+{% trans 'Date:' %} {% now "jS F Y H:i" %}
+
+{{ Recipient_email_Body }}
+
+{% trans 'Sent via' %} http://{{ request.get_host }}
