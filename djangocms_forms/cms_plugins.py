@@ -102,6 +102,7 @@ class FormPlugin(CMSPluginBase):
                                'an email address to have the form submissions emailed to you or '
                                'log all the form submissions to the database.',
                 'fields': ('email_to', 'email_from', 'email_subject',
+                            'Recipient_email', 'Recipient_email_subject', 'Recipient_email_Body',
                            'email_uploaded_files', 'save_data', 'spam_protection', ),
             }),
         )
