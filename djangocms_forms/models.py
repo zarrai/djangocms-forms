@@ -74,6 +74,13 @@ class FormDefinition(CMSPlugin):
     email_uploaded_files = models.BooleanField(
         _('Send uploaded files as email attachments'), default=True)
 
+    # Recipient email
+    Recipient_email = models.CharField(
+        _('Recipient e-mail address'), max_length=255, blank=True,
+        help_text=_('Separate several addresses with a comma.'))
+    Recipient_email_subject = models.CharField(_('Recipient Email Subject'), max_length=255, blank=True)
+    Recipient_email_Body =  models.TextField(_('Email Body Text'), blank=True)
+
     # Save to database
     save_data = models.BooleanField(
         _('Save to database'),  default=True,
