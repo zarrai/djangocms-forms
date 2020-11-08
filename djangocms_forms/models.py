@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import re
 
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 from django.template.defaultfilters import slugify
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
@@ -104,6 +105,15 @@ class FormDefinition(CMSPlugin):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        super().clean()
+        try:
+            confirmation_mail = self.fields.get(label=self.Recipient_email)
+        except ObjectDoesNotExist:
+            raise ValidationError(
+                _('There is no such field as "%s", so you cannot use it in the Recipient_email field.' % self.Recipient_email))
 
     @property
     def redirect_url(self):
