@@ -5,4 +5,9 @@
 
 {{ Recipient_email_Body }}
 
+{% for item in form_data %}
+{% if item.label %}{{ item.label }}{% else %}{{ item.name }}{% endif %}:
+{{ item.value|friendly|default_if_none:'—' }}
+{% endfor %}
+
 {% trans 'Sent via' %} http://{{ request.get_host }}
