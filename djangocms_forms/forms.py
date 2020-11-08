@@ -344,8 +344,12 @@ class FormBuilder(forms.Form):
         mail_subject = self.form_definition.email_subject or \
             'Form Submission - %s' % self.form_definition.name
         # Recipient email
-        if request.method == 'POST':
-            Recipient_email = re.compile('\s*[,;]+\s*').split(request.POST['e_mail'])
+
+        confirmation_recipient_field = self.form_definition.Recipient_email
+        Recipient_email = []
+        for field in form_data:
+            if field['label'] == confirmation_recipient_field:
+                Recipient_email.append(field['value'])
         Recipient_email_subject = self.form_definition.Recipient_email_subject or \
             'Form Submission - %s' % self.form_definition.name
         Recipient_email_Body = self.form_definition.Recipient_email_Body

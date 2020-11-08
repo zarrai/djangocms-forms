@@ -76,8 +76,8 @@ class FormDefinition(CMSPlugin):
 
     # Recipient email
     Recipient_email = models.CharField(
-        _('Recipient e-mail address'), max_length=255, blank=True,
-        help_text=_('Separate several addresses with a comma.'))
+        _('Recipient e-mail address field name'), max_length=255, blank=True,
+        help_text=_('Copy here the name of the form field containing the recipient\'s email address.'))
     Recipient_email_subject = models.CharField(_('Recipient Email Subject'), max_length=255, blank=True)
     Recipient_email_Body =  models.TextField(_('Email Body Text'), blank=True)
 
