@@ -8,7 +8,7 @@
     <body itemscope itemtype="http://schema.org/EmailMessage">
         <h1>{{ form.title }}</h1>
         <p><strong>{% trans 'Date:' %}</strong> {% now 'jS F Y H:i' %}</p>
-        <strong>{{ Recipient_email_Body }}</strong>
+        <strong>{{ confirmation_email_body }}</strong>
         {% for item in form_data %}
             <p>
                 <strong>{% if item.label %}{{ item.label }}{% else %}{{ item.name }}{% endif %}:</strong><br/>

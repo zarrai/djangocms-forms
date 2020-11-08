@@ -343,16 +343,16 @@ class FormBuilder(forms.Form):
         mail_from = self.form_definition.email_from or None
         mail_subject = self.form_definition.email_subject or \
             'Form Submission - %s' % self.form_definition.name
-        # Recipient email
+        # confirmation email
 
-        confirmation_recipient_field = self.form_definition.Recipient_email
-        Recipient_email = []
+        confirmation_recipient_field = self.form_definition.confirmation_email_recipient
+        confirmation_email_recipient = []
         for field in form_data:
             if field['label'] == confirmation_recipient_field:
-                Recipient_email.append(field['value'])
-        Recipient_email_subject = self.form_definition.Recipient_email_subject or \
+                confirmation_email_recipient.append(field['value'])
+        confirmation_email_subject = self.form_definition.confirmation_email_subject or \
             'Form Submission - %s' % self.form_definition.name
-        Recipient_email_Body = self.form_definition.Recipient_email_Body
+        confirmation_email_body = self.form_definition.confirmation_email_body
 
         context = {
             'form': self.form_definition,
@@ -362,9 +362,9 @@ class FormBuilder(forms.Form):
             'request': request,
             'recipients': mail_to,
             #
-            'Recipient_email': Recipient_email,
-            'Recipient_subject': Recipient_email_subject,
-            'Recipient_email_Body':  Recipient_email_Body,
+            'confirmation_email': confirmation_email_recipient,
+            'confirmation_subject': confirmation_email_subject,
+            'confirmation_email_body':  confirmation_email_body,
         }
 
         message = render_to_string('djangocms_forms/email_template/email.txt', context)
@@ -373,11 +373,12 @@ class FormBuilder(forms.Form):
         email = EmailMultiAlternatives(mail_subject, message, mail_from, mail_to)
         email.attach_alternative(message_html, 'text/html')
         #
-        Recipient_message = render_to_string('djangocms_forms/email_template/Recipient_email.txt', context)
-        Recipient_message_html = render_to_string('djangocms_forms/email_template/Recipient_email.html', context)
+        confirmation_message = render_to_string('djangocms_forms/email_template/confirmation_email.txt', context)
+        confirmation_message_html = render_to_string('djangocms_forms/email_template/confirmation_email.html', context)
 
-        Recipient_email = EmailMultiAlternatives(Recipient_email_subject, Recipient_message, mail_from, Recipient_email)
-        Recipient_email.attach_alternative(Recipient_message_html, 'text/html')
+        confirmation_email = EmailMultiAlternatives(confirmation_email_subject, confirmation_message, mail_from,
+                                                    confirmation_email_recipient)
+        confirmation_email.attach_alternative(confirmation_message_html, 'text/html')
 
         if self.form_definition.email_uploaded_files:
             for field, filedata in self.files.items():
@@ -387,7 +388,7 @@ class FormBuilder(forms.Form):
                 email.attach(filedata.name, content, filedata.content_type)
 
         email.send(fail_silently=False)
-        Recipient_email.send(fail_silently=False)
+        confirmation_email.send(fail_silently=False)
 
 
 class SubmissionExportForm(forms.Form):

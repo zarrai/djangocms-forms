@@ -31,8 +31,8 @@ class FormFieldInline(admin.StackedInline):
     def get_fieldsets(self, request, obj=None):
         fields = (
             ('label', 'field_type', 'required'),
-            'initial', 'placeholder_text', 'help_text', 
-            'choice_values', 'position', 
+            'initial', 'placeholder_text', 'help_text',
+            'choice_values', 'position',
         )
 
         if settings.DJANGOCMS_FORMS_ALLOW_CUSTOM_FIELD_NAME:
@@ -102,7 +102,7 @@ class FormPlugin(CMSPluginBase):
                                'an email address to have the form submissions emailed to you or '
                                'log all the form submissions to the database.',
                 'fields': ('email_to', 'email_from', 'email_subject',
-                            'Recipient_email', 'Recipient_email_subject', 'Recipient_email_Body',
+                           'confirmation_email_recipient', 'confirmation_email_subject', 'confirmation_email_body',
                            'email_uploaded_files', 'save_data', 'spam_protection', ),
             }),
         )

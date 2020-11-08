@@ -3,7 +3,7 @@
 {% trans 'Form:' %} {{ form.name }}
 {% trans 'Date:' %} {% now "jS F Y H:i" %}
 
-{{ Recipient_email_Body }}
+{{ confirmation_email_body }}
 
 {% for item in form_data %}
 {% if item.label %}{{ item.label }}{% else %}{{ item.name }}{% endif %}:

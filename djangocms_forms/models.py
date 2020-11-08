@@ -75,12 +75,12 @@ class FormDefinition(CMSPlugin):
     email_uploaded_files = models.BooleanField(
         _('Send uploaded files as email attachments'), default=True)
 
-    # Recipient email
-    Recipient_email = models.CharField(
-        _('Recipient e-mail address field name'), max_length=255, blank=True,
+    # confirmation email
+    confirmation_email_recipient = models.CharField(
+        _('confirmation email address field name'), max_length=255, blank=True,
         help_text=_('Copy here the name of the form field containing the recipient\'s email address.'))
-    Recipient_email_subject = models.CharField(_('Recipient Email Subject'), max_length=255, blank=True)
-    Recipient_email_Body =  models.TextField(_('Email Body Text'), blank=True)
+    confirmation_email_subject = models.CharField(_('confirmation email Subject'), max_length=255, blank=True)
+    confirmation_email_body =  models.TextField(_('Email Body Text'), blank=True)
 
     # Save to database
     save_data = models.BooleanField(
@@ -110,10 +110,10 @@ class FormDefinition(CMSPlugin):
         from django.core.exceptions import ValidationError
         super().clean()
         try:
-            confirmation_mail = self.fields.get(label=self.Recipient_email)
+            confirmation_mail = self.fields.get(label=self.confirmation_email_recipient)
         except ObjectDoesNotExist:
             raise ValidationError(
-                _('There is no such field as "%s", so you cannot use it in the Recipient_email field.' % self.Recipient_email))
+                _('There is no such field as "%s", so you cannot use it in the Recipient_email field.' % self.confirmation_email_recipient))
 
     @property
     def redirect_url(self):
