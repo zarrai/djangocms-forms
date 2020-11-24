@@ -9,6 +9,10 @@
                 {% url cl.opts|admin_urlname:'export' as export_url %}
                 <a href="{{ export_url }}" class="addlink">{% trans "Export Form Submissions" %}</a>
             </li>
+            <li>
+                {% url cl.opts|admin_urlname:'filter' as filter_url %}
+                <a href="{{ filter_url }}" class="addlink">{% trans "Filter Form Submissions" %}</a>
+            </li>
         {% endblock %}
     </ul>
     {% endif %}

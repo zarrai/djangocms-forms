@@ -412,3 +412,17 @@ class SubmissionExportForm(forms.Form):
         label=_('From date'), required=False, widget=AdminDateWidget)
     to_date = forms.DateField(
         label=_('To date'), required=False, widget=AdminDateWidget)
+
+class SubmissionFilterForm(forms.Form):
+
+    form = forms.ModelChoiceField(
+        queryset=Form.active_objects.all(), label=_('Select a Form'),
+        error_messages={'required': _('Please select a form.')},
+        help_text=_('Select the form you would like to filter entry data from.'))
+    headers = MultipleChoiceAutoCompleteField(
+        label=_('Fields'), required=False,
+        widget=FilteredSelectMultiple(verbose_name=_('Fields'), is_stacked=False),)
+    from_date = forms.DateField(
+        label=_('From date'), required=False, widget=AdminDateWidget)
+    to_date = forms.DateField(
+        label=_('To date'), required=False, widget=AdminDateWidget)
