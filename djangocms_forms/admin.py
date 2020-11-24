@@ -297,11 +297,12 @@ class FormSubmissionAdmin(admin.ModelAdmin):
                 return redirect('admin:%s_%s_filter' % info)
 
             if not headers:
-                headers = [field['label'].strip() for field in latest_submission.form_data]
+                headers = []
                 for submission in queryset:
                     for field in submission.form_data:
                         label = field['label'].strip()
-                        if label not in headers:
+                        field_type = field['type']
+                        if field_type == 'radio' and label not in headers:
                             headers.append(label)
 
                 if request.is_ajax():
@@ -325,7 +326,25 @@ class FormSubmissionAdmin(admin.ModelAdmin):
                     value = ', '.join(list(value))
                 return value
 
-
+            x=[]
+            for submission in queryset:
+                row = {}
+                for field in submission.form_data:
+                    label = field['label'].strip()
+                    if label in headers:
+                        for i in headers:
+                            row[i] = humanize(field)
+                x.append(row)
+            print(x)
+            print('tttttttt',headers)
+            from collections import Counter
+            signs = Counter(k[i] for k in x if k.get(i))
+            for sign, count in signs.most_common():
+                print(count, 'x',sign)
+            print('count:',queryset.count())            
+            return HttpResponse(signs.most_common())
+            # if request.method == 'GET' and request.is_ajax():
+            #return JsonResponse(data)
 
         # Wrap in all admin layout
         fieldsets = ((None, {'fields': form.fields.keys()}),)
