@@ -22,7 +22,7 @@ from django.utils.translation import ugettext_lazy as _
 from tablib import Dataset
 
 from .conf import settings
-from .forms import SubmissionExportForm, SubmissionFilterForm
+from .forms import SubmissionExportForm
 from .models import Form, FormSubmission
 
 try:
@@ -62,7 +62,6 @@ class FormSubmissionAdmin(admin.ModelAdmin):
     change_form_template = 'admin/djangocms_forms/formsubmission/change_form.html'
     change_list_template = 'admin/djangocms_forms/formsubmission/change_list.html'
     export_form_template = 'admin/djangocms_forms/formsubmission/export_form.html'
-    filter_form_template = 'admin/djangocms_forms/formsubmission/filter_form.html'
     list_display = ('plugin', 'creation_date_display', 'created_by', 'ip', 'referrer', )
     list_filter = (FormFilter, )
     readonly_fields = ('creation_date_display', 'created_by', 'plugin', 'ip', 'referrer', )
@@ -76,7 +75,6 @@ class FormSubmissionAdmin(admin.ModelAdmin):
     class Media:
         js = (
             'js/djangocms_forms/admin/jquery-form-export.js',
-            'js/djangocms_forms/admin/jquery-form-filter.js',
         )
 
     def has_add_permission(self, request):
@@ -111,7 +109,6 @@ class FormSubmissionAdmin(admin.ModelAdmin):
 
         extra_urls = [
             url(r'^export/$', wrap(self.export_view), name='%s_%s_export' % info),
-            url(r'^filter/$', wrap(self.filter_view), name='%s_%s_filter' % info),
         ]
         return extra_urls + urls
 
@@ -260,90 +257,6 @@ class FormSubmissionAdmin(admin.ModelAdmin):
         }
         return self.render_export_form(request, context, form_url)
 
-    def filter_view(self, request, form_url=''):
-        """The 'filter' admin view for this model."""
-
-        info = self.opts.app_label, self.opts.model_name
-
-        if not self.has_export_permission(request):
-            raise PermissionDenied
-
-        form = SubmissionFilterForm(data=request.POST if request.method == 'POST' else None)
-
-        if form.is_valid():
-            data = form.cleaned_data
-            queryset = self.get_queryset(request) \
-                .filter(plugin_id=data.get('form')) \
-                .select_related('created_by', 'plugin', )
-
-            from_date, to_date = data.get('from_date'), data.get('to_date')
-            headers = data.get('headers', [])
-
-            if from_date:
-                queryset = queryset.filter(creation_date__gte=from_date)
-            if to_date:
-                queryset = queryset.filter(creation_date__lt=to_date + datetime.timedelta(days=1))
-
-            if not queryset.exists():
-                message = _('No matching %s found for the given criteria. '
-                            'Please try again.') % self.opts.verbose_name_plural
-                self.message_user(request, message, level=messages.WARNING)
-                if request.is_ajax():
-                    data = {
-                        'reloadBrowser': True,
-                        'submissionCount': 0,
-                    }
-                    return JsonResponse(data)
-                return redirect('admin:%s_%s_filter' % info)
-
-            if not headers:
-                headers = [field['label'].strip() for field in latest_submission.form_data]
-                for submission in queryset:
-                    for field in submission.form_data:
-                        label = field['label'].strip()
-                        if label not in headers:
-                            headers.append(label)
-
-                if request.is_ajax():
-                    data = {
-                        'reloadBrowser': False,
-                        'submissionCount': queryset.count(),
-                        'availableHeaders': headers,
-                    }
-                    return JsonResponse(data)
-
-            def humanize(field):
-                value = field['value']
-                field_type = field['type']
-
-                if value in (None, '', [], (), {}):
-                    return None
-
-                if field_type == 'checkbox':
-                    value = yesno(bool(value), u'{0},{1}'.format(_('Yes'), _('No')))
-                if field_type == 'checkbox_multiple':
-                    value = ', '.join(list(value))
-                return value
-
-
-
-        # Wrap in all admin layout
-        fieldsets = ((None, {'fields': form.fields.keys()}),)
-        adminform = AdminForm(form, fieldsets, {}, model_admin=self)
-        media = self.media + adminform.media
-
-        context = {
-            'title': _('Filter %s') % force_text(self.opts.verbose_name_plural),
-            'adminform': adminform,
-            'is_popup': (IS_POPUP_VAR in request.POST or IS_POPUP_VAR in request.GET),
-            'media': mark_safe(media),
-            'errors': AdminErrorList(form, ()),
-            'app_label': self.opts.app_label,
-        }
-        return self.render_filter_form(request, context, form_url)
-
-
-
     def render_export_form(self, request, context, form_url=''):
         """
         Render the from submission export form.
@@ -357,21 +270,6 @@ class FormSubmissionAdmin(admin.ModelAdmin):
         })
 
         return TemplateResponse(request, self.export_form_template, context)
-
-    def render_filter_form(self, request, context, form_url=''):
-        """
-        Render the from submission filter form.
-        """
-        context.update({
-            'has_change_permission': self.has_change_permission(request),
-            'form_url': mark_safe(form_url),
-            'opts': self.opts,
-            'add': True,
-            'save_on_top': self.save_on_top,
-        })
-
-        return TemplateResponse(request, self.filter_form_template, context)
-
 
 
 admin.site.register(FormSubmission, FormSubmissionAdmin)
