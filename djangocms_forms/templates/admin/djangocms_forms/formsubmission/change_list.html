@@ -9,6 +9,10 @@
                 {% url cl.opts|admin_urlname:'export' as export_url %}
                 <a href="{{ export_url }}" class="addlink">{% trans "Export Form Submissions" %}</a>
             </li>
+            <li>
+                {% url cl.opts|admin_urlname:'grouping' as grouping_url %}
+                <a href="{{ grouping_url }}" class="addlink">{% trans "Gruppierung" %}</a>
+            </li>
         {% endblock %}
     </ul>
     {% endif %}

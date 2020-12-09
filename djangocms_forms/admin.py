@@ -10,6 +10,7 @@ from django.contrib.admin.helpers import AdminErrorList, AdminForm
 from django.contrib.auth import get_permission_codename
 from django.contrib.auth.admin import csrf_protect_m
 from django.core.exceptions import PermissionDenied
+from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template.defaultfilters import slugify, yesno
@@ -23,7 +24,7 @@ from tablib import Dataset
 
 from .conf import settings
 from .forms import SubmissionExportForm
-from .models import Form, FormSubmission
+from .models import Form, FormSubmission, FormDefinition
 
 try:
     from django.contrib.admin.options import IS_POPUP_VAR
@@ -109,6 +110,7 @@ class FormSubmissionAdmin(admin.ModelAdmin):
 
         extra_urls = [
             url(r'^export/$', wrap(self.export_view), name='%s_%s_export' % info),
+            url(r'^grouping/$', wrap(self.grouping_view), name='%s_%s_grouping' % info),
         ]
         return extra_urls + urls
 
@@ -213,7 +215,7 @@ class FormSubmissionAdmin(admin.ModelAdmin):
                     if label in headers:
                         row[headers.index(label)] = humanize(field)
 
-                    row[-4] = force_text(submission.created_by or _('Unknown')) 
+                    row[-4] = force_text(submission.created_by or _('Unknown'))
                     row[-3] = submission.creation_date.strftime(
                         settings.DJANGOCMS_FORMS_DATETIME_FORMAT)
                     row[-2] = submission.ip
@@ -271,5 +273,32 @@ class FormSubmissionAdmin(admin.ModelAdmin):
 
         return TemplateResponse(request, self.export_form_template, context)
 
+    @csrf_protect_m
+    def grouping_view(self, request, extra_context=None):
+        definitions = FormDefinition.objects.exclude(group_by_fields='')
+        by_definition = {}
+        for definition in definitions:
+            name = definition.name
+            fields = definition.group_by_fields.split('\n')
+            fields = [field.strip() for field in fields]
+            by_definition[name] = dict([(field, {}) for field in fields])
+            submissions = FormSubmission.objects\
+                .filter(plugin__plugin=definitions)
+            for submission in submissions:
+                data_list = submission.form_data
+                for data in data_list:
+                    label = data['label']
+                    if label in fields:
+                        value = data['value']
+                        try:
+                            by_definition[name][label][value] += 1
+                        except KeyError:
+                            by_definition[name][label][value] = 1
+        context = {
+            'by_definition': by_definition,
+            'title': "Formulareingaben gruppiert",
+        }
+        return TemplateResponse(request, 'admin/djangocms_forms/formsubmission/grouping.html', context)
 
 admin.site.register(FormSubmission, FormSubmissionAdmin)
+

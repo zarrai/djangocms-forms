@@ -1,0 +1,29 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+
+{% block content %}
+  {% for form, data in by_definition.items %}
+    <hr>
+    <h2>{{ form }}</h2>
+    <div class="results">
+      {% for label, values in data.items %}
+      <h3 style="margin: 40px 0 20px;">{{ label }}</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Anmeldungen</th>
+            <th>Veranstaltung</th>
+          </tr>
+        </thead>
+        {% for value, count in values.items %}
+          <tr>
+            <td>{{ count }}</td>
+            <td>{{ value }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    {% endfor %}
+    </div>
+  {% endfor %}
+{% endblock content %}

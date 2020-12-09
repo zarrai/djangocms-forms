@@ -105,6 +105,10 @@ class FormPlugin(CMSPluginBase):
                            'confirmation_email_recipient', 'confirmation_email_subject', 'confirmation_email_body',
                            'email_uploaded_files', 'save_data', 'spam_protection', ),
             }),
+            (None, {
+                'description': "Nach diesen Feldern gruppieren",
+                'fields': ('group_by_fields',)
+            })
         )
         return fieldsets
 

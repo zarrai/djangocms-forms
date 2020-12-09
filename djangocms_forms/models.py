@@ -82,6 +82,14 @@ class FormDefinition(CMSPlugin):
     confirmation_email_subject = models.CharField(_('confirmation email Subject'), max_length=255, blank=True)
     confirmation_email_body =  models.TextField(_('Email Body Text'), blank=True)
 
+    # group by fields
+    group_by_fields = models.TextField(
+        _("Nach diesen Feldern gruppieren"),
+        help_text=_("Bitte ein Feld-Name pro Zeile."),
+        blank=True,
+        default=''
+    )
+
     # Save to database
     save_data = models.BooleanField(
         _('Save to database'),  default=True,
@@ -109,11 +117,13 @@ class FormDefinition(CMSPlugin):
     def clean(self):
         from django.core.exceptions import ValidationError
         super().clean()
-        try:
-            confirmation_mail = self.fields.get(label=self.confirmation_email_recipient)
-        except ObjectDoesNotExist:
-            raise ValidationError(
-                _('There is no such field as "%s", so you cannot use it in the Recipient_email field.' % self.confirmation_email_recipient))
+        if self.confirmation_email_recipient:
+            try:
+                confirmation_mail = self.fields.get(label=self.confirmation_email_recipient)
+            except ObjectDoesNotExist:
+                raise ValidationError(
+                    _(
+                        'There is no such field as "%s", so you cannot use it in the Recipient_email field.' % self.confirmation_email_recipient))
 
     @property
     def redirect_url(self):
