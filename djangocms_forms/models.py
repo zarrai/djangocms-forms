@@ -146,6 +146,15 @@ class FormDefinition(CMSPlugin):
     def use_recaptcha(self):
         return self.spam_protection == 2
 
+    def save(self, no_signals=False, *args, **kwargs):
+        form = self.plugin_reference
+        if form.name != self.name:
+            form.name = self.name
+            form.pk = None
+            form = form.save()
+            self.plugin_reference = form
+        super().save(no_signals, *args, **kwargs)
+
     def copy_relations(self, oldinstance):
         for field in oldinstance.fields.all():
             field.pk = None
