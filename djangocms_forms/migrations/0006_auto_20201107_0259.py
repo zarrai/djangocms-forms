@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='formdefinition',
             name='cmsplugin_ptr',
-            field=models.OneToOneField(primary_key=True, serialize=False, auto_created=True, related_name='djangocms_forms_formdefinition', parent_link=True, to='cms.CMSPlugin'),
+            field=models.OneToOneField(primary_key=True, serialize=False, auto_created=True, related_name='djangocms_forms_formdefinition', parent_link=True, to='cms.CMSPlugin', on_delete=models.CASCADE,),
         ),
         migrations.AlterField(
             model_name='formdefinition',

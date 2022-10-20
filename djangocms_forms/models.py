@@ -7,7 +7,7 @@ import re
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.defaultfilters import slugify
-from django.utils.encoding import python_2_unicode_compatible
+#from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from cms.models import CMSPlugin
@@ -20,7 +20,7 @@ from .fields import PluginReferenceField
 from .managers import ActiveFormManager
 
 
-@python_2_unicode_compatible
+
 class Form(models.Model):
     name = models.CharField(_('Name'), max_length=255, db_index=True, editable=False)
 
@@ -35,7 +35,7 @@ class Form(models.Model):
         return self.name
 
 
-@python_2_unicode_compatible
+
 class FormDefinition(CMSPlugin):
     name = models.CharField(_('Form Name'), max_length=255)
 
@@ -162,9 +162,9 @@ class FormDefinition(CMSPlugin):
             field.save()
 
 
-@python_2_unicode_compatible
+
 class FormField(models.Model):
-    form = models.ForeignKey(FormDefinition, related_name='fields')
+    form = models.ForeignKey(FormDefinition, related_name='fields', on_delete=models.CASCADE,)
     field_type = models.CharField(
         _('Field Type'), max_length=100,
         choices=settings.DJANGOCMS_FORMS_FIELD_TYPES,
@@ -256,13 +256,13 @@ class FormField(models.Model):
             return [(choice, choice) for choice in choices]
 
 
-@python_2_unicode_compatible
+
 class FormSubmission(models.Model):
     plugin = models.ForeignKey(
-        Form, verbose_name=_('Form'), editable=False, related_name='submissions')
+        Form, verbose_name=_('Form'), editable=False, related_name='submissions', on_delete=models.CASCADE,)
     creation_date = models.DateTimeField(_('Date'), auto_now=True)
     created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, verbose_name=_('User'), editable=False, null=True)
+        settings.AUTH_USER_MODEL, verbose_name=_('User'), editable=False, null=True, on_delete=models.CASCADE,)
     ip = models.GenericIPAddressField(verbose_name='IP', blank=True, null=True)
     referrer = models.CharField(_('Referrer URL'), max_length=150, blank=True)
 
